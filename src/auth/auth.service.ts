@@ -55,19 +55,23 @@ export class AuthService {
 
   async loginUser(res, user: LoginUserDTO): Promise<User> {
     try {
-      const loginUser = await this.userModel.findOne({ email: user.email });
+      const logedUser = await this.userModel.findOne({ email: user.email });
 
-      if (loginUser) {
-        const pass = compareSync(user.password, loginUser.password);
+      if (logedUser) {
+        const pass = compareSync(user.password, logedUser.password);
         if (pass) {
           const payload = {
-            id: loginUser._id,
-            email: loginUser.email,
+            id: logedUser._id,
+            email: logedUser.email,
           }
           return res.status(HttpStatus.OK).json({
             SUCCESS: true,
             message: 'Logged in',
-            data: this.jwtService.sign(payload)
+            data: {
+              username: logedUser.username,
+              email: logedUser.email,
+              accessToken: this.jwtService.sign(payload)
+            }
           })
         }
       }
@@ -85,7 +89,8 @@ export class AuthService {
         data: null
       })
     }
-  } 
+  }
+
 }
 
 
